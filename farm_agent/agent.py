@@ -164,18 +164,60 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.wfile.write(b"Missing q parameter")
             return
 
+        self.handle_question(question)
+
+    def do_POST(self):
+        parsed = urlparse(self.path)
+
+        if parsed.path != "/ask":
+            self.send_response(404)
+            self.end_headers()
+            return
+
+        try:
+            content_length = int(self.headers.get("Content-Length", 0))
+            body = self.rfile.read(content_length)
+
+            data = json.loads(body)
+            question = data.get("question")
+
+            if not question:
+                self.send_response(400)
+                self.end_headers()
+                self.wfile.write(b"Missing question")
+                return
+
+            self.handle_question(question)
+
+        except Exception as e:
+            self.send_response(400)
+            self.end_headers()
+            self.wfile.write(str(e).encode("utf-8"))
+
+    def handle_question(self, question):
         try:
             answer = asyncio.run(ask_agent(question))
 
+            response = json.dumps({
+                "answer": answer
+            }).encode("utf-8")
+
             self.send_response(200)
-            self.send_header("Content-Type", "text/plain; charset=utf-8")
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(response)))
             self.end_headers()
-            self.wfile.write(answer.encode("utf-8"))
+            self.wfile.write(response)
 
         except Exception as e:
+            response = json.dumps({
+                "error": str(e)
+            }).encode("utf-8")
+
             self.send_response(500)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(response)))
             self.end_headers()
-            self.wfile.write(str(e).encode("utf-8"))
+            self.wfile.write(response)
 
 
 def main():
