@@ -3,7 +3,7 @@
   "name": "Farm Agent",
   "codeowners": ["@realsystem"],
   "config_flow": true,
-  "version": "0.1.0",
+  "version": "0.4.0",
   "documentation": "https://github.com/realsystem/farm_agent",
   "homeassistant": {
     "min_version": "2026.9.0"

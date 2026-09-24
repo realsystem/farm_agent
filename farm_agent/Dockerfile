@@ -10,7 +10,7 @@ COPY run.sh /
 RUN chmod a+x /run.sh
 
 LABEL \
-    io.hass.version="0.2.0" \
+    io.hass.version="0.4.0" \
     io.hass.type="app" \
     io.hass.arch="aarch64|amd64"
 

@@ -21,32 +21,37 @@ def discover_entities() -> str:
         },
     )
 
-    with urllib.request.urlopen(request, timeout=5) as response:
-        states = json.loads(response.read())
+    try:
+        with urllib.request.urlopen(request, timeout=5) as response:
+            states = json.loads(response.read())
 
-    entities = []
+        entities = []
 
-    for data in states:
-        entity_id = data["entity_id"]
+        for data in states:
+            entity_id = data["entity_id"]
 
-        if not (
-            entity_id.startswith("sensor.eco_worthy_")
-            or entity_id.startswith("sensor.smartshunt_")
-            or entity_id == "sun.sun"
-        ):
-            continue
+            if not (
+                entity_id.startswith("sensor.eco_worthy_")
+                or entity_id.startswith("sensor.smartshunt_")
+                or entity_id == "sun.sun"
+            ):
+                continue
 
-        attributes = data.get("attributes", {})
+            attributes = data.get("attributes", {})
 
-        entities.append({
-            "entity_id": entity_id,
-            "name": attributes.get("friendly_name", entity_id),
-            "state": data.get("state"),
-            "unit": attributes.get("unit_of_measurement"),
-            "device_class": attributes.get("device_class"),
-        })
+            entities.append({
+                "entity_id": entity_id,
+                "name": attributes.get("friendly_name", entity_id),
+                "state": data.get("state"),
+                "unit": attributes.get("unit_of_measurement"),
+                "device_class": attributes.get("device_class"),
+            })
 
-    return json.dumps(entities)
+        return json.dumps(entities)
+    except urllib.error.URLError:
+        return "Home Assistant unavailable"
+    except Exception as e:
+        return f"Error discovering entities: {str(e)}"
 
 
 @function_tool
@@ -72,49 +77,23 @@ def get_entity_state(entity_id: str) -> str:
         },
     )
 
-    with urllib.request.urlopen(request, timeout=5) as response:
-        data = json.loads(response.read())
-
-    return json.dumps({
-        "entity_id": data["entity_id"],
-        "state": data["state"],
-        "attributes": data.get("attributes", {}),
-    })
-
-
-@function_tool
-def get_battery_status() -> str:
-    """Get the current battery status from Home Assistant."""
-
-    entity_ids = [
-        "sensor.eco_worthy_0b_89a2_battery",
-        "sensor.eco_worthy_0b_89a2_current",
-        "sensor.eco_worthy_0b_89a2_temperature",
-        "sensor.eco_worthy_0b_89a2_voltage",
-    ]
-
-    results = {}
-
-    for entity_id in entity_ids:
-        url = f"http://supervisor/core/api/states/{entity_id}"
-
-        request = urllib.request.Request(
-            url,
-            headers={
-                "Authorization": f"Bearer {os.environ['SUPERVISOR_TOKEN']}",
-                "Content-Type": "application/json",
-            },
-        )
-
+    try:
         with urllib.request.urlopen(request, timeout=5) as response:
             data = json.loads(response.read())
 
-        results[entity_id] = {
+        return json.dumps({
+            "entity_id": data["entity_id"],
             "state": data["state"],
-            "unit": data["attributes"].get("unit_of_measurement"),
-        }
-
-    return json.dumps(results)
+            "attributes": data.get("attributes", {}),
+        })
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            return f"Entity {entity_id} not found in Home Assistant"
+        return f"Home Assistant API error: {e.code}"
+    except urllib.error.URLError:
+        return "Home Assistant unavailable"
+    except Exception as e:
+        return f"Error retrieving entity state: {str(e)}"
 
 
 agent = Agent(
