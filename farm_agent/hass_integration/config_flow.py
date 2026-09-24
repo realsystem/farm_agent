@@ -20,9 +20,14 @@ class FarmAgentConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             return self.async_abort(reason="single_instance_allowed")
 
         if user_input is not None:
+            # Detect Farm Agent endpoint
+            endpoint = await self._detect_endpoint()
+            if not endpoint:
+                return self.async_abort(reason="farm_agent_not_found")
+
             return self.async_create_entry(
                 title="Farm Agent",
-                data={"host": "localhost", "port": 8080}
+                data={"endpoint": endpoint}
             )
 
         return self.async_show_form(
@@ -30,6 +35,27 @@ class FarmAgentConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema({}),
             description_placeholders={},
         )
+
+    async def _detect_endpoint(self) -> str | None:
+        """Detect Farm Agent add-on endpoint."""
+        session = async_get_clientsession(self.hass)
+
+        # Try the verified hostname (underscore converts to hyphen in Supervisor)
+        endpoint = "http://farm-agent:8080"
+
+        try:
+            async with session.post(
+                f"{endpoint}/ask",
+                json={"question": "ping"},
+                timeout=5,
+            ) as resp:
+                if resp.status in (200, 400, 500):  # Any response = reachable
+                    _LOGGER.info(f"Farm Agent detected at {endpoint}")
+                    return endpoint
+        except Exception as e:
+            _LOGGER.debug(f"Farm Agent detection failed: {e}")
+
+        return None
 
     async def async_step_import(self, import_data):
         """Import a config entry."""

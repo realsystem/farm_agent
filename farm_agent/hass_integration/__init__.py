@@ -14,7 +14,15 @@ async def async_setup(hass, config):
 async def async_setup_entry(hass, entry):
     """Set up Farm Agent from a config entry."""
     hass.data.setdefault(DOMAIN, {})
-    hass.data[DOMAIN][entry.entry_id] = entry.data
+
+    # Store the endpoint URL from config
+    endpoint = entry.data.get("endpoint", "http://farm-agent:8080")
+    hass.data[DOMAIN][entry.entry_id] = {
+        "endpoint": endpoint,
+        "entry": entry,
+    }
+
+    _LOGGER.info(f"Farm Agent configured with endpoint: {endpoint}")
 
     await hass.config_entries.async_forward_entry_setups(entry, ["conversation"])
     return True

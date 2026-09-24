@@ -25,8 +25,8 @@ class TestIntegrationImports(unittest.TestCase):
         # Check for HTTP client usage
         self.assertIn("async_get_clientsession", content)
 
-        # Check for correct endpoint
-        self.assertIn("localhost:8080", content)
+        # Check for correct endpoint (farm-agent, not localhost)
+        self.assertIn("farm-agent:8080", content)
 
     def test_config_flow_has_correct_structure(self):
         """Verify config_flow.py has expected class."""
@@ -39,9 +39,11 @@ class TestIntegrationImports(unittest.TestCase):
         # Check for async_step_user
         self.assertIn("async def async_step_user", content)
 
-        # Check that it stores localhost:8080
-        self.assertIn('"localhost"', content)
-        self.assertIn('8080', content)
+        # Check for endpoint detection
+        self.assertIn("_detect_endpoint", content)
+
+        # Check that it uses farm-agent hostname (not localhost)
+        self.assertIn("farm-agent:8080", content)
 
     def test_manifest_is_valid_json(self):
         """Verify manifest.json is valid."""
@@ -95,8 +97,8 @@ class TestHTTPEndpointAssumptions(unittest.TestCase):
         conv_file = Path(__file__).parent / "hass_integration" / "conversation.py"
         content = conv_file.read_text()
 
-        # Check that localhost:8080/ask is used
-        self.assertIn("localhost:8080/ask", content)
+        # Check that farm-agent:8080/ask is used (verified hostname)
+        self.assertIn("farm-agent:8080", content)
 
     def test_request_format_is_documented(self):
         """Verify request format matches Farm Agent API."""
@@ -151,8 +153,8 @@ class TestConfigFlowIssues(unittest.TestCase):
         cf_file = Path(__file__).parent / "hass_integration" / "config_flow.py"
         content = cf_file.read_text()
 
-        self.assertIn('data={"host":', content)
-        self.assertIn('"localhost"', content)
+        self.assertIn('data={"endpoint":', content)
+        self.assertIn('farm-agent:8080', content)
 
     def test_config_flow_has_single_instance_check(self):
         """Verify only one instance is allowed."""
@@ -161,16 +163,15 @@ class TestConfigFlowIssues(unittest.TestCase):
 
         self.assertIn("single_instance_allowed", content)
 
-    def test_config_flow_does_not_verify_connectivity(self):
-        """Verify config flow doesn't test the endpoint (IT SHOULD)."""
+    def test_config_flow_verifies_connectivity(self):
+        """Verify config flow tests the endpoint."""
         cf_file = Path(__file__).parent / "hass_integration" / "config_flow.py"
         content = cf_file.read_text()
 
-        # This is a PROBLEM we're documenting
-        if "http://" not in content or "8080" not in content:
-            # If HTTP call is not in config flow, endpoint isn't verified
-            # This is a limitation to note
-            pass
+        # Config flow should detect and verify the endpoint
+        self.assertIn("_detect_endpoint", content)
+        self.assertIn("session.post", content)
+        self.assertIn("farm-agent:8080", content)
 
 
 class TestFarmAgentAPIContract(unittest.TestCase):

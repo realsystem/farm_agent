@@ -46,8 +46,14 @@ class FarmAgentConversation(ConversationEntity):
         try:
             session = async_get_clientsession(self.hass)
 
+            # Get endpoint from config
+            config_data = self.hass.data.get(DOMAIN, {}).get(
+                self.config_entry.entry_id, {}
+            )
+            endpoint = config_data.get("endpoint", "http://farm-agent:8080")
+
             async with session.post(
-                "http://localhost:8080/ask",
+                f"{endpoint}/ask",
                 json={"question": question},
                 timeout=30,
             ) as resp:
