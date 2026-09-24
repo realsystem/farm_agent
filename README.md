@@ -95,13 +95,13 @@ Ask on your Pixel phone: "What is the battery voltage?"
 
 ## Key Features
 
-✅ **No Configuration Required** — Works with default settings  
+✅ **Simple Setup** — Just add your OpenAI API key and go  
 ✅ **No Restart Required for Updates** — Reload via UI  
 ✅ **Secure** — Credentials stay in add-on only  
-✅ **Fast** — Local communication, typical <5 second response  
+✅ **Fast** — Local communication, typical 3-5 second response  
 ✅ **Intelligent** — OpenAI language model understands context  
 ✅ **Monitored** — Entity whitelist prevents unauthorized access  
-✅ **Error Handling** — Graceful failures, useful error messages  
+✅ **Error Handling** — Graceful failures with clear error messages  
 
 ## System Requirements
 
