@@ -6,4 +6,4 @@ echo "================================"
 echo "Farm Agent started"
 echo "================================"
 
-python3 /agent.py
+python3 -u /agent.py
