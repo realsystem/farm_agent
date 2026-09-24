@@ -1,5 +1,5 @@
 name: "Farm Agent"
-version: "0.2.7"
+version: "0.2.8"
 slug: "farm_agent"
 description: "AI agent for remote farm monitoring"
 init: false

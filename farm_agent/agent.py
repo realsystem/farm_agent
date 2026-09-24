@@ -28,21 +28,57 @@ def discover_entities() -> str:
     for data in states:
         entity_id = data["entity_id"]
 
-        if (
+        if not (
             entity_id.startswith("sensor.eco_worthy_")
             or entity_id.startswith("sensor.smartshunt_")
             or entity_id == "sun.sun"
         ):
-            attributes = data.get("attributes", {})
+            continue
 
-            entities.append({
-                "entity_id": entity_id,
-                "name": attributes.get("friendly_name", entity_id),
-                "unit": attributes.get("unit_of_measurement"),
-                "device_class": attributes.get("device_class"),
-            })
+        attributes = data.get("attributes", {})
+
+        entities.append({
+            "entity_id": entity_id,
+            "name": attributes.get("friendly_name", entity_id),
+            "state": data.get("state"),
+            "unit": attributes.get("unit_of_measurement"),
+            "device_class": attributes.get("device_class"),
+        })
 
     return json.dumps(entities)
+
+
+@function_tool
+def get_entity_state(entity_id: str) -> str:
+    """Get the current state of a specific Home Assistant entity."""
+
+    allowed = (
+        entity_id.startswith("sensor.eco_worthy_")
+        or entity_id.startswith("sensor.smartshunt_")
+        or entity_id == "sun.sun"
+    )
+
+    if not allowed:
+        return "Entity is not available through this tool."
+
+    url = f"http://supervisor/core/api/states/{entity_id}"
+
+    request = urllib.request.Request(
+        url,
+        headers={
+            "Authorization": f"Bearer {os.environ['SUPERVISOR_TOKEN']}",
+            "Content-Type": "application/json",
+        },
+    )
+
+    with urllib.request.urlopen(request, timeout=5) as response:
+        data = json.loads(response.read())
+
+    return json.dumps({
+        "entity_id": data["entity_id"],
+        "state": data["state"],
+        "attributes": data.get("attributes", {}),
+    })
 
 
 @function_tool
@@ -100,14 +136,17 @@ agent = Agent(
     If the available measurements look normal, say that they look normal.
     If something looks unusual, point it out and explain why.
     """,
-    tools=[get_battery_status, discover_entities],
+    tools=[
+        discover_entities,
+        get_entity_state,
+    ],
 )
 
 
 async def main():
     result = await Runner.run(
         agent,
-        "What useful sensors and devices are available?"
+        "What is the current battery voltage?"
     )
 
     print("=== AGENT RESPONSE ===")
