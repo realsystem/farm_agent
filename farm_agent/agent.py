@@ -7,6 +7,45 @@ from agents import Agent, Runner, function_tool
 
 
 @function_tool
+def discover_entities() -> str:
+    """Discover useful farm entities available in Home Assistant."""
+
+    url = "http://supervisor/core/api/states"
+
+    request = urllib.request.Request(
+        url,
+        headers={
+            "Authorization": f"Bearer {os.environ['SUPERVISOR_TOKEN']}",
+            "Content-Type": "application/json",
+        },
+    )
+
+    with urllib.request.urlopen(request, timeout=5) as response:
+        states = json.loads(response.read())
+
+    entities = []
+
+    for data in states:
+        entity_id = data["entity_id"]
+
+        if (
+            entity_id.startswith("sensor.eco_worthy_")
+            or entity_id.startswith("sensor.smartshunt_")
+            or entity_id == "sun.sun"
+        ):
+            attributes = data.get("attributes", {})
+
+            entities.append({
+                "entity_id": entity_id,
+                "name": attributes.get("friendly_name", entity_id),
+                "unit": attributes.get("unit_of_measurement"),
+                "device_class": attributes.get("device_class"),
+            })
+
+    return json.dumps(entities)
+
+
+@function_tool
 def get_battery_status() -> str:
     """Get the current battery status from Home Assistant."""
 
@@ -61,14 +100,14 @@ agent = Agent(
     If the available measurements look normal, say that they look normal.
     If something looks unusual, point it out and explain why.
     """,
-    tools=[get_battery_status],
+    tools=[get_battery_status, discover_entities],
 )
 
 
 async def main():
     result = await Runner.run(
         agent,
-        "Is the battery OK, or does it need attention?"
+        "What useful sensors and devices are available?"
     )
 
     print("=== AGENT RESPONSE ===")
