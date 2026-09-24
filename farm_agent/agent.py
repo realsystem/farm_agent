@@ -58,7 +58,7 @@ agent = Agent(
 async def main():
     result = await Runner.run(
         agent,
-        "How is the farm battery doing right now?"
+        "Is the battery OK, or does it need attention?"
     )
 
     print("=== AGENT RESPONSE ===")
