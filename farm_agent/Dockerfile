@@ -2,7 +2,7 @@ FROM ghcr.io/home-assistant/base:latest
 
 RUN apk add --no-cache python3 py3-pip
 
-RUN pip3 install --no-cache-dir openai-agents
+RUN python3 -m pip install --no-cache-dir --break-system-packages openai-agents
 
 COPY agent.py /
 COPY run.sh /
