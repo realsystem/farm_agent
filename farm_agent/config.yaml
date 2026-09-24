@@ -1,9 +1,15 @@
-name: Farm Agent
-version: "0.2.0"
-slug: farm_agent
-description: Simple AI agent for the remote farm
+name: "Farm Agent"
+version: "0.2.1"
+slug: "farm_agent"
+description: "AI agent for remote farm monitoring"
 init: false
 
 arch:
   - aarch64
   - amd64
+
+options:
+  openai_api_key: ""
+
+schema:
+  openai_api_key: password
