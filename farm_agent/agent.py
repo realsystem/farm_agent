@@ -4,7 +4,8 @@ import os
 import urllib.request
 
 from agents import Agent, Runner, function_tool
-
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from urllib.parse import urlparse, parse_qs
 
 @function_tool
 def discover_entities() -> str:
@@ -135,23 +136,56 @@ agent = Agent(
 )
 
 
-async def main():
+async def ask_agent(question):
     result = await Runner.run(
         agent,
-        "Give me a complete summary of the battery system."
+        question
     )
 
-    print("=== AGENT RESPONSE ===")
-    print(result.final_output)
+    return result.final_output
 
-    usage = result.context_wrapper.usage
 
-    print("=== USAGE ===")
-    print(f"API requests: {usage.requests}")
-    print(f"Input tokens: {usage.input_tokens}")
-    print(f"Output tokens: {usage.output_tokens}")
-    print(f"Total tokens: {usage.total_tokens}")
+class RequestHandler(BaseHTTPRequestHandler):
+
+    def do_GET(self):
+        parsed = urlparse(self.path)
+
+        if parsed.path != "/ask":
+            self.send_response(404)
+            self.end_headers()
+            return
+
+        params = parse_qs(parsed.query)
+        question = params.get("q", [None])[0]
+
+        if not question:
+            self.send_response(400)
+            self.end_headers()
+            self.wfile.write(b"Missing q parameter")
+            return
+
+        try:
+            answer = asyncio.run(ask_agent(question))
+
+            self.send_response(200)
+            self.send_header("Content-Type", "text/plain; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(answer.encode("utf-8"))
+
+        except Exception as e:
+            self.send_response(500)
+            self.end_headers()
+            self.wfile.write(str(e).encode("utf-8"))
+
+
+def main():
+    server = HTTPServer(("0.0.0.0", 8080), RequestHandler)
+
+    print("=== FARM AGENT HTTP SERVER ===")
+    print("Listening on port 8080")
+
+    server.serve_forever()
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
