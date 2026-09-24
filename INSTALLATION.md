@@ -146,13 +146,16 @@ If something doesn't work:
 # SSH into Home Assistant
 ssh homeassistant@<YOUR_HA_IP>
 
-# Test the add-on directly
-curl -X POST http://farm-agent:8080/ask \
+# Test the add-on directly (using Home Assistant's IP)
+curl -X POST http://localhost:8080/ask \
   -H "Content-Type: application/json" \
   -d '{"question": "What is the battery voltage?"}'
 
 # Expected response:
 # {"answer": "The battery voltage is 48.2V"}
+
+# Note: Uses localhost:8080 because the add-on port is bound to 127.0.0.1:8080
+# This works when testing from Home Assistant itself (not from external network)
 ```
 
 If this works but Assist doesn't, the integration setup may have an issue. Check Settings → System → Logs.
@@ -179,7 +182,7 @@ After the initial setup, you can update the integration files without restarting
 
 - SSH and check Farm Agent add-on is running: `ps aux | grep agent.py`
 - Check add-on logs in Home Assistant UI
-- Verify port 8080 is accessible: `curl http://farm-agent:8080/ask` should return 400 (because no question)
+- Verify port 8080 is accessible: `curl http://localhost:8080/ask` should return 400 (because no question)
 - Check that OPENAI_API_KEY is set in add-on settings
 
 ### "Entity not available" when asking questions

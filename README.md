@@ -170,7 +170,7 @@ Answer returned through chain
 ### "Farm Agent is not responding"
 
 1. Verify add-on is running: Check add-on UI
-2. Verify port 8080: `curl http://farm-agent:8080/ask` (should give 400)
+2. Verify port 8080: `curl http://localhost:8080/ask` (should give 400)
 3. Check add-on logs for OpenAI API errors
 4. Verify `openai_api_key` is set in add-on settings
 
@@ -321,7 +321,7 @@ Possible future enhancements:
 
 **Troubleshooting:**
 - Check Settings → System → Logs
-- Test Farm Agent directly: `curl -X POST http://farm-agent:8080/ask ...`
+- Test Farm Agent directly: `curl -X POST http://localhost:8080/ask ...` (from Home Assistant)
 - Verify Home Assistant can reach sensors: Developer Tools → States
 
 **Issues:**

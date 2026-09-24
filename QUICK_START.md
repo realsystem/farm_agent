@@ -103,7 +103,7 @@ Should appear in the list.
 SSH into Home Assistant:
 
 ```bash
-curl -X POST http://farm-agent:8080/ask \
+curl -X POST http://localhost:8080/ask \
   -H "Content-Type: application/json" \
   -d '{"question": "What is the battery voltage?"}'
 ```

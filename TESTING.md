@@ -24,7 +24,7 @@ These tests verify:
 **What to test:** The simple GET endpoint accepts questions
 
 ```bash
-curl "http://farm-agent:8080/ask?q=What%20is%20the%20battery%20voltage"
+curl "http://localhost:8080/ask?q=What%20is%20the%20battery%20voltage"
 ```
 
 **Expected result:**
@@ -42,7 +42,7 @@ curl "http://farm-agent:8080/ask?q=What%20is%20the%20battery%20voltage"
 **What to test:** The JSON POST endpoint accepts questions
 
 ```bash
-curl -X POST http://farm-agent:8080/ask \
+curl -X POST http://localhost:8080/ask \
   -H "Content-Type: application/json" \
   -d '{"question": "What is the battery voltage?"}'
 ```
@@ -63,10 +63,10 @@ curl -X POST http://farm-agent:8080/ask \
 
 ```bash
 # GET without q parameter
-curl "http://farm-agent:8080/ask"
+curl "http://localhost:8080/ask"
 
 # POST with empty question
-curl -X POST http://farm-agent:8080/ask \
+curl -X POST http://localhost:8080/ask \
   -H "Content-Type: application/json" \
   -d '{"question": ""}'
 ```
@@ -87,7 +87,7 @@ or HTTP 400
 **What to test:** API handles malformed JSON
 
 ```bash
-curl -X POST http://farm-agent:8080/ask \
+curl -X POST http://localhost:8080/ask \
   -H "Content-Type: application/json" \
   -d 'not valid json'
 ```
@@ -448,7 +448,7 @@ Entity is not available through this tool
 
 ```bash
 for i in {1..5}; do
-  curl -X POST http://farm-agent:8080/ask \
+  curl -X POST http://localhost:8080/ask \
     -H "Content-Type: application/json" \
     -d '{"question": "What is the battery voltage?"}' &
 done
@@ -486,7 +486,7 @@ Save as `test_farm_agent.sh`:
 echo "=== Farm Agent Test Suite ==="
 
 echo "1. Testing GET /ask"
-curl -s "http://farm-agent:8080/ask?q=What%20is%20the%20battery%20voltage" | jq .
+curl -s "http://localhost:8080/ask?q=What%20is%20the%20battery%20voltage" | jq .
 
 echo "2. Testing POST /ask"
 curl -s -X POST http://farm-agent:8080/ask \
@@ -494,7 +494,7 @@ curl -s -X POST http://farm-agent:8080/ask \
   -d '{"question": "Is the battery charging?"}' | jq .
 
 echo "3. Testing missing parameter"
-curl -s "http://farm-agent:8080/ask" | jq .
+curl -s "http://localhost:8080/ask" | jq .
 
 echo "4. Testing conversation.process service"
 echo "Go to Developer Tools → Services and test conversation.process"
