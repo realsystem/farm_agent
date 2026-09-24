@@ -88,7 +88,7 @@ After Home Assistant restarts:
 2. Look for "Farm Agent" in the integrations list
 3. Click "Create Integration" → Search for "Farm Agent"
 4. Click "Farm Agent" and then "Create entry"
-5. The default settings are fine (communicates with localhost:8080)
+5. The default settings are fine (communicates with farm-agent:8080)
 
 ## Step 5: Add Farm Agent to Assist Pipeline
 
@@ -147,7 +147,7 @@ If something doesn't work:
 ssh homeassistant@<YOUR_HA_IP>
 
 # Test the add-on directly
-curl -X POST http://localhost:8080/ask \
+curl -X POST http://farm-agent:8080/ask \
   -H "Content-Type: application/json" \
   -d '{"question": "What is the battery voltage?"}'
 
@@ -179,7 +179,7 @@ After the initial setup, you can update the integration files without restarting
 
 - SSH and check Farm Agent add-on is running: `ps aux | grep agent.py`
 - Check add-on logs in Home Assistant UI
-- Verify port 8080 is accessible: `curl http://localhost:8080/ask` should return 400 (because no question)
+- Verify port 8080 is accessible: `curl http://farm-agent:8080/ask` should return 400 (because no question)
 - Check that OPENAI_API_KEY is set in add-on settings
 
 ### "Entity not available" when asking questions
@@ -222,7 +222,7 @@ Home Assistant Assist
         ↓
 Conversation Integration (farm_agent)
         ↓
-HTTP POST to localhost:8080/ask
+HTTP POST to farm-agent:8080/ask
         ↓
 Farm Agent Add-on
         ↓
@@ -239,7 +239,7 @@ Displayed/spoken in Assist
 
 ## Security Notes
 
-- The integration only communicates locally (localhost:8080)
+- The integration only communicates locally (farm-agent:8080)
 - OpenAI API key remains in the add-on only
 - Supervisor token remains in the add-on only
 - No credentials are exposed to Home Assistant

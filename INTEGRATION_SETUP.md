@@ -11,7 +11,7 @@ Home Assistant Assist
   ↓
 Farm Agent Conversation Integration (in Home Assistant)
   ↓
-Farm Agent Add-on HTTP API (localhost:8080/ask)
+Farm Agent Add-on HTTP API (farm-agent:8080/ask)
   ↓
 OpenAI Agents SDK + Home Assistant API
   ↓
@@ -62,7 +62,7 @@ Or if you want to use the UI:
 
 1. User speaks/types a question in Assist
 2. Assist sends the text to the Farm Agent Conversation agent
-3. The integration makes an HTTP POST request to `http://localhost:8080/ask`
+3. The integration makes an HTTP POST request to `http://farm-agent:8080/ask`
 4. Farm Agent (the add-on) receives the question and uses OpenAI Agents SDK
 5. The agent uses its tools to query Home Assistant API
 6. The answer is returned to the integration
@@ -71,7 +71,7 @@ Or if you want to use the UI:
 
 ## Communication Details
 
-- **Endpoint:** `http://localhost:8080/ask` (POST)
+- **Endpoint:** `http://farm-agent:8080/ask` (POST)
 - **Request:** `{"question": "What is the battery voltage?"}`
 - **Response:** `{"answer": "The battery voltage is 48.2V"}`
 - **Errors:** Returns response with error message and HTTP error code
@@ -80,7 +80,7 @@ Or if you want to use the UI:
 
 The integration does NOT require changes to `configuration.yaml`.
 
-It discovers the Farm Agent add-on automatically at `localhost:8080`.
+It discovers the Farm Agent add-on automatically at `farm-agent:8080`.
 
 ## Hot Reload
 
@@ -120,7 +120,7 @@ Settings → Devices & Services → Farm Agent → (three dots) → Reload
 
 ## Security Notes
 
-- The integration communicates with Farm Agent via `localhost:8080`
+- The integration communicates with Farm Agent via `farm-agent:8080`
 - The integration does NOT send OpenAI API keys to Home Assistant
 - The integration does NOT expose the Supervisor token to clients
 - The Farm Agent add-on remains responsible for authentication with OpenAI and Home Assistant

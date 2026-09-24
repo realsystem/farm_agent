@@ -45,7 +45,7 @@ Assist:                    Speaks/displays answer
 **`farm_agent/hass_integration/conversation.py` (73 lines)**
 - `FarmAgentConversation` class implementing `ConversationEntity`
 - Handles incoming questions from Assist
-- Makes HTTP requests to `localhost:8080/ask`
+- Makes HTTP requests to `farm-agent:8080/ask`
 - Proper error handling with user-friendly messages
 - 30-second timeout for responses
 
@@ -155,7 +155,7 @@ The implementation preserves all existing functionality:
 │      └─ farm_agent (CUSTOM INTEGRATION)                   │
 │          ├─ Implements ConversationEntity                  │
 │          └─ Routes to Farm Agent add-on                    │
-│             (HTTP POST to localhost:8080/ask)             │
+│             (HTTP POST to farm-agent:8080/ask)             │
 └────────────────────────┬────────────────────────────────────┘
                          │ HTTP (localhost only)
                          ↓
@@ -193,7 +193,7 @@ The implementation preserves all existing functionality:
 2. **Assist transcribes** to text: "What is the battery voltage?"
 3. **Assist invokes** conversation agent: `conversation.process` service
 4. **Custom Integration** (ConversationEntity) receives the question
-5. **Integration** makes HTTP POST to `localhost:8080/ask`:
+5. **Integration** makes HTTP POST to `farm-agent:8080/ask`:
    ```json
    {"question": "What is the battery voltage?"}
    ```
@@ -430,7 +430,7 @@ Conversation integration selected: farm_agent
         ↓
 ConversationEntity.async_process() called
         ↓
-Integration makes HTTP request to localhost:8080
+Integration makes HTTP request to farm-agent:8080
         ↓
 Farm Agent responds with answer
         ↓
@@ -451,7 +451,7 @@ await conversation.process(
 FarmAgentConversation.async_process(ConversationInput)
     ↓
 # Makes HTTP request:
-POST http://localhost:8080/ask
+POST http://farm-agent:8080/ask
 {"question": "What is the battery voltage?"}
     ↓
 # Returns:
@@ -595,7 +595,7 @@ Possible additions (not needed for MVP):
 ### Debugging Tools
 
 - Check logs: Settings → System → Logs → farm_agent
-- Test directly: `curl -X POST http://localhost:8080/ask ...`
+- Test directly: `curl -X POST http://farm-agent:8080/ask ...`
 - Verify setup: Settings → Devices & Services → Farm Agent
 - Check Assist: Settings → Voice Assistants → Review pipeline
 

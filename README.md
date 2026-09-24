@@ -114,7 +114,7 @@ Ask on your Pixel phone: "What is the battery voltage?"
 
 1. **User speaks to Assist:** "What is the battery voltage?"
 2. **Assist routes to Farm Agent** conversation agent
-3. **Integration makes HTTP request** to add-on (localhost:8080/ask)
+3. **Integration makes HTTP request** to add-on (farm-agent:8080/ask)
 4. **Add-on receives question** via REST endpoint
 5. **Agent initializes** with OpenAI Agents SDK
 6. **Agent uses tools:**
@@ -142,7 +142,7 @@ Home Assistant (localhost)
     ↓
 Custom Integration (listens)
     ↓
-HTTP POST http://localhost:8080/ask
+HTTP POST http://farm-agent:8080/ask
     ↓
 Farm Agent Add-on (listens on port 8080)
     ↓
@@ -170,7 +170,7 @@ Answer returned through chain
 ### "Farm Agent is not responding"
 
 1. Verify add-on is running: Check add-on UI
-2. Verify port 8080: `curl http://localhost:8080/ask` (should give 400)
+2. Verify port 8080: `curl http://farm-agent:8080/ask` (should give 400)
 3. Check add-on logs for OpenAI API errors
 4. Verify `openai_api_key` is set in add-on settings
 
@@ -321,7 +321,7 @@ Possible future enhancements:
 
 **Troubleshooting:**
 - Check Settings → System → Logs
-- Test Farm Agent directly: `curl -X POST http://localhost:8080/ask ...`
+- Test Farm Agent directly: `curl -X POST http://farm-agent:8080/ask ...`
 - Verify Home Assistant can reach sensors: Developer Tools → States
 
 **Issues:**
