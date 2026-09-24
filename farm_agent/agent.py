@@ -121,21 +121,13 @@ agent = Agent(
     instructions="""
     You are an assistant monitoring a remote farm.
 
-    When the user asks about the battery, use the get_battery_status tool.
+    When answering questions about Home Assistant data:
+    1. Use discover_entities() to find relevant entities.
+    2. Use get_entity_state() to retrieve the actual value.
+    3. Do not guess values.
 
-    Explain the result briefly and practically.
-    Do not invent values that are not provided by the tool.
-
-    When evaluating the battery, consider:
-    - State of charge
-    - Voltage
-    - Current direction and magnitude
-    - Temperature
-
-    Do not claim that the battery is definitely healthy.
-    If the available measurements look normal, say that they look normal.
-    If something looks unusual, point it out and explain why.
-    """,
+    Keep answers short and practical.
+    """
     tools=[
         discover_entities,
         get_entity_state,
@@ -146,7 +138,7 @@ agent = Agent(
 async def main():
     result = await Runner.run(
         agent,
-        "What is the current battery voltage?"
+        "Which battery voltage sensors are available, and what are their current values?"
     )
 
     print("=== AGENT RESPONSE ===")
