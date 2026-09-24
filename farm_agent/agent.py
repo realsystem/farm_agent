@@ -127,7 +127,7 @@ agent = Agent(
     3. Do not guess values.
 
     Keep answers short and practical.
-    """
+    """,
     tools=[
         discover_entities,
         get_entity_state,
