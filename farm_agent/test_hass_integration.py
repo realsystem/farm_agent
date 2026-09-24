@@ -170,7 +170,8 @@ class TestConfigFlowIssues(unittest.TestCase):
 
         # Config flow should detect and verify the endpoint
         self.assertIn("_detect_endpoint", content)
-        self.assertIn("session.post", content)
+        self.assertIn("session.get", content)
+        self.assertIn("/health", content)
         self.assertIn("farm-agent:8080", content)
 
 
