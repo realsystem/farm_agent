@@ -44,12 +44,11 @@ class FarmAgentConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         endpoint = "http://farm-agent:8080"
 
         try:
-            async with session.post(
-                f"{endpoint}/ask",
-                json={"question": "ping"},
+            async with session.get(
+                f"{endpoint}/health",
                 timeout=5,
             ) as resp:
-                if resp.status in (200, 400, 500):  # Any response = reachable
+                if resp.status == 200:
                     _LOGGER.info(f"Farm Agent detected at {endpoint}")
                     return endpoint
         except Exception as e:

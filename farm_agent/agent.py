@@ -150,6 +150,13 @@ class RequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         parsed = urlparse(self.path)
 
+        if parsed.path == "/health":
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(b'{"status": "ok"}')
+            return
+
         if parsed.path != "/ask":
             self.send_response(404)
             self.end_headers()
@@ -221,10 +228,10 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 
 def main():
-    server = HTTPServer(("0.0.0.0", 8080), RequestHandler)
+    server = HTTPServer(("127.0.0.1", 8080), RequestHandler)
 
     print("=== FARM AGENT HTTP SERVER ===")
-    print("Listening on port 8080")
+    print("Listening on 127.0.0.1:8080 (localhost only)")
 
     server.serve_forever()
 
