@@ -50,6 +50,16 @@ agent = Agent(
 
     Explain the result briefly and practically.
     Do not invent values that are not provided by the tool.
+
+    When evaluating the battery, consider:
+    - State of charge
+    - Voltage
+    - Current direction and magnitude
+    - Temperature
+
+    Do not claim that the battery is definitely healthy.
+    If the available measurements look normal, say that they look normal.
+    If something looks unusual, point it out and explain why.
     """,
     tools=[get_battery_status],
 )
