@@ -1,0 +1,9 @@
+name: Farm Agent
+version: "0.1.0"
+slug: farm_agent
+description: Simple AI agent for the remote farm
+init: false
+
+arch:
+  - aarch64
+  - amd64
