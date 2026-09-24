@@ -138,7 +138,7 @@ agent = Agent(
 async def main():
     result = await Runner.run(
         agent,
-        "Which battery voltage sensors are available, and what are their current values?"
+        "Is the battery currently charging or discharging, and approximately how much?"
     )
 
     print("=== AGENT RESPONSE ===")
