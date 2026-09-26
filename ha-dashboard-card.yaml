@@ -1,0 +1,59 @@
+# Home Assistant Dashboard Card Configuration for Farm Agent
+#
+# This is a Lovelace dashboard card that provides a simple UI for the Farm Agent.
+#
+# Installation:
+# 1. In Home Assistant, go to Settings → Dashboards
+# 2. Create a new dashboard or edit an existing one
+# 3. Click the three-dot menu → Edit dashboard (or enter edit mode)
+# 4. Click "+" to add a new card
+# 5. Select "Manual card" or "YAML"
+# 6. Copy the YAML below into the card editor
+# 7. Save
+#
+# The card provides:
+# - A text input field for questions
+# - An "Ask" button that triggers the script
+# - A display area for the answer
+
+type: vertical-stack
+cards:
+  - type: entities
+    title: Farm Agent
+    show_header_toggle: false
+    entities:
+      - entity: input_text.farm_agent_question
+        name: Your Question
+      - entity: input_text.farm_agent_answer
+        name: Answer
+
+  - type: button
+    tap_action:
+      action: call-service
+      service: script.farm_agent_ask
+      service_data:
+        question: "{{ states('input_text.farm_agent_question') }}"
+    name: Ask Farm Agent
+    show_icon: true
+    icon: mdi:send
+
+---
+# Alternative: Simple format (if you prefer a more compact layout)
+#
+# type: entities
+# title: Farm Agent Q&A
+# entities:
+#   - entity: input_text.farm_agent_question
+#     name: Question
+#   - entity: input_text.farm_agent_answer
+#     name: Answer
+#
+# And add this as a separate button card:
+#
+# type: button
+# tap_action:
+#   action: call-service
+#   service: script.farm_agent_ask
+#   service_data:
+#     question: "{{ states('input_text.farm_agent_question') }}"
+# name: Ask

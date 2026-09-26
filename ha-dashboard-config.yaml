@@ -1,0 +1,77 @@
+# Home Assistant Configuration for Farm Agent Dashboard UI
+#
+# Add this configuration to your Home Assistant to enable the Farm Agent dashboard UI.
+# This provides a simple text-based interface to ask arbitrary questions.
+#
+# Installation:
+# 1. Copy this YAML content into your Home Assistant configuration
+# 2. Restart Home Assistant
+# 3. Create a dashboard card using the card configuration (see separate file)
+#
+# What this creates:
+# - input_text.farm_agent_question: Text input for questions
+# - input_text.farm_agent_answer: Displays the answer from Farm Agent
+# - script.farm_agent_ask: Script that sends question and stores answer
+# - Calls the existing http://farm-agent:8080/ask endpoint
+
+# Input text helpers for the Farm Agent dashboard
+input_text:
+  farm_agent_question:
+    name: Farm Agent Question
+    icon: mdi:help-circle
+    max: 500
+    unit_of_measurement: ""
+
+  farm_agent_answer:
+    name: Farm Agent Answer
+    icon: mdi:lightbulb
+    max: 1000
+    unit_of_measurement: ""
+
+# Script to call Farm Agent and store the response
+script:
+  farm_agent_ask:
+    alias: Farm Agent Ask
+    description: Send a question to Farm Agent and store the answer
+    fields:
+      question:
+        description: The question to ask Farm Agent
+        example: "What is the current battery voltage?"
+    sequence:
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.farm_agent_answer
+        data:
+          value: "Asking Farm Agent..."
+
+      - service: rest_command.farm_agent_ask
+        data:
+          question: "{{ question }}"
+        response_variable: farm_agent_response
+
+      - if:
+          - condition: template
+            value_template: "{{ farm_agent_response.status == 200 }}"
+        then:
+          - service: input_text.set_value
+            target:
+              entity_id: input_text.farm_agent_answer
+            data:
+              value: "{{ farm_agent_response.json.answer | default('No answer received', true) }}"
+        else:
+          - service: input_text.set_value
+            target:
+              entity_id: input_text.farm_agent_answer
+            data:
+              value: "Farm Agent is unavailable. Please check the add-on status."
+
+# REST command to call the Farm Agent /ask endpoint
+# Note: This uses the internal Docker hostname farm-agent:8080
+# The request originates from Home Assistant, not from the browser
+rest_command:
+  farm_agent_ask:
+    url: "http://farm-agent:8080/ask"
+    method: post
+    content_type: "application/json"
+    payload: '{"question":"{{ question }}"}'
+    timeout: 35
