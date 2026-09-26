@@ -31,3 +31,7 @@ venv/
 *.swp
 *.swo
 *~
+
+# Local development
+.env
+dev/homeassistant/

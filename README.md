@@ -293,15 +293,41 @@ Breakdown:
 - **Python:** 3.9, 3.10, 3.11, 3.12
 - **SDK:** OpenAI Agents SDK 0.1.0+
 
-## Development
+## Local Development Environment
 
-To modify the agent:
+For iterating on the agent without deploying to the Raspberry Pi:
+
+```bash
+./dev-setup.sh
+```
+
+This starts:
+- Real Home Assistant in Docker (http://localhost:8123)
+- Farm Agent in Docker (http://localhost:8080)
+- Both on a local Docker network
+
+**Key features:**
+- ✅ Real Home Assistant (not mocked)
+- ✅ Simulated farm entities with realistic values
+- ✅ Fast Python iteration (code is mounted in container)
+- ✅ Isolated from production Raspberry Pi
+- ✅ No credentials in Git (uses .env)
+
+**Quick test after setup:**
+```bash
+curl "http://localhost:8080/ask?q=What%20is%20the%20battery%20voltage?"
+```
+
+**For full details:** [LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md)
+
+## Development (Production Add-on)
+
+To modify the agent running on the Raspberry Pi:
 
 1. Edit `farm_agent/agent.py`
-2. Test locally: `python farm_agent/agent.py`
-3. Run tests: `python -m unittest farm_agent/test_integration.py -v`
-4. Rebuild container: `docker build -t farm-agent:latest farm_agent/`
-5. Restart add-on in Home Assistant
+2. Test locally with Docker Compose (see above)
+3. Rebuild container: `docker build -t farm-agent:latest farm_agent/`
+4. Restart add-on in Home Assistant
 
 To modify the integration:
 

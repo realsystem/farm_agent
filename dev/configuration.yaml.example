@@ -1,0 +1,47 @@
+# Home Assistant Configuration Example for Local Farm Agent Development
+#
+# This configuration.yaml snippet shows how to set up template sensors
+# for simulated farm entities. Copy the relevant parts into your Home Assistant
+# configuration.yaml file, or use the includes approach shown below.
+#
+# For local development, you typically won't need to edit this directly if you:
+# 1. Use the template sensors defined in farm_entities.yaml
+# 2. Use input_number helpers via the UI
+# 3. Use Developer Tools → States to change values
+
+homeassistant:
+  name: Farm Agent Development
+  latitude: 37.7749
+  longitude: -122.4194
+  elevation: 0
+  unit_system: metric
+  time_zone: America/Los_Angeles
+
+  # Include template sensors and other packages
+  packages:
+    farm_entities: !include includes/farm_entities.yaml
+
+# Frontend
+frontend:
+
+# HTTP interface
+http:
+  server_port: 8123
+
+# Logger
+logger:
+  default: info
+
+# Enable history
+history:
+
+# Enable automation
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+# Enable REST API
+api:
+
+# Enable WebSocket API
+websocket_api:

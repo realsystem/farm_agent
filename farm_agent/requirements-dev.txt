@@ -1,0 +1,2 @@
+# Development environment requirements
+openai>=1.0.0

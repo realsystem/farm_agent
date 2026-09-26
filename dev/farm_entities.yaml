@@ -1,0 +1,140 @@
+#!/usr/bin/env sh
+# Home Assistant Template Sensors for Simulated Farm Entities
+#
+# Install: Copy this configuration into Home Assistant configuration.yaml
+# Or create a separate file and include it:
+#
+# homeassistant:
+#   packages:
+#     farm_entities: !include includes/farm_entities.yaml
+
+# These template sensors simulate the real farm hardware:
+# - EcoWorthy solar system (battery, current, temperature)
+# - SmartShunt battery monitor
+# - Sun position
+#
+# Entity IDs must match production to test the same agent code locally.
+
+template:
+  - sensor:
+      # EcoWorthy Solar System Sensors
+
+      - name: "EcoWorthy Battery Voltage"
+        unique_id: eco_worthy_0b_89a2_voltage
+        unit_of_measurement: "V"
+        device_class: voltage
+        state: "13.28"
+        attributes:
+          friendly_name: "EcoWorthy Battery Voltage"
+          description: "Simulated battery voltage (13.28V = 88% SOC, ~4A discharge)"
+
+      - name: "EcoWorthy Battery Current"
+        unique_id: eco_worthy_0b_89a2_current
+        unit_of_measurement: "A"
+        device_class: current
+        state: "-4.2"
+        attributes:
+          friendly_name: "EcoWorthy Battery Current"
+          description: "Negative = discharging, Positive = charging"
+
+      - name: "EcoWorthy Battery Temperature"
+        unique_id: eco_worthy_0b_89a2_temperature
+        unit_of_measurement: "°F"
+        device_class: temperature
+        state: "82"
+        attributes:
+          friendly_name: "EcoWorthy Battery Temperature"
+          description: "Normal operating temperature"
+
+      - name: "EcoWorthy Battery State of Charge"
+        unique_id: eco_worthy_0b_89a2_battery
+        unit_of_measurement: "%"
+        device_class: battery
+        state: "88"
+        attributes:
+          friendly_name: "EcoWorthy Battery State of Charge"
+          description: "Percentage of battery capacity (88% = healthy)"
+
+      # SmartShunt Battery Monitor Sensors
+
+      - name: "SmartShunt Voltage"
+        unique_id: smartshunt_hq2203nczhp_voltage
+        unit_of_measurement: "V"
+        device_class: voltage
+        state: "13.28"
+        attributes:
+          friendly_name: "SmartShunt Voltage"
+          description: "Battery voltage as measured by SmartShunt"
+
+      - name: "SmartShunt Current"
+        unique_id: smartshunt_hq2203nczhp_current
+        unit_of_measurement: "A"
+        device_class: current
+        state: "-4.2"
+        attributes:
+          friendly_name: "SmartShunt Current"
+          description: "Battery current (negative = out, positive = in)"
+
+      - name: "SmartShunt Consumed Ampere Hours"
+        unique_id: smartshunt_hq2203nczhp_consumed_ampere_hours
+        unit_of_measurement: "Ah"
+        state: "2450"
+        attributes:
+          friendly_name: "SmartShunt Consumed Ampere Hours"
+          description: "Total energy withdrawn from battery"
+
+      - name: "SmartShunt Alarm Status"
+        unique_id: smartshunt_hq2203nczhp_alarm
+        state: "ok"
+        attributes:
+          friendly_name: "SmartShunt Alarm Status"
+          description: "Low Battery, High Current, etc. (ok = no alarm)"
+
+      - name: "SmartShunt Signal Strength"
+        unique_id: smartshunt_hq2203nczhp_signal_strength
+        unit_of_measurement: "%"
+        state: "100"
+        attributes:
+          friendly_name: "SmartShunt Signal Strength"
+          description: "Bluetooth signal quality"
+
+      # Sun Position (always available in HA)
+
+      - name: "Sun"
+        unique_id: sun_sun
+        state: "above_horizon"
+        attributes:
+          friendly_name: "Sun"
+          description: "Solar position for determining charging/discharging expectations"
+          elevation: "45"
+          azimuth: "180"
+
+# Quick-Change Scenarios for Testing
+#
+# Use the Developer Tools → States to change these values quickly:
+#
+# NORMAL OPERATION (88% SOC, ~4A discharge):
+#   sensor.eco_worthy_0b_89a2_voltage: 13.28
+#   sensor.eco_worthy_0b_89a2_current: -4.2
+#   sensor.eco_worthy_0b_89a2_temperature: 82
+#   sensor.eco_worthy_0b_89a2_battery: 88
+#
+# CHARGING (14.1V, +18A charge):
+#   sensor.eco_worthy_0b_89a2_voltage: 14.1
+#   sensor.eco_worthy_0b_89a2_current: 18.5
+#   sensor.eco_worthy_0b_89a2_temperature: 80
+#   sensor.eco_worthy_0b_89a2_battery: 95
+#
+# HEAVY DISCHARGE (12.7V, -30A, 60% SOC):
+#   sensor.eco_worthy_0b_89a2_voltage: 12.7
+#   sensor.eco_worthy_0b_89a2_current: -30.0
+#   sensor.eco_worthy_0b_89a2_temperature: 85
+#   sensor.eco_worthy_0b_89a2_battery: 60
+#
+# HOT BATTERY (105°F):
+#   sensor.eco_worthy_0b_89a2_temperature: 105
+#
+# LOW BATTERY (20% SOC, 12.1V):
+#   sensor.eco_worthy_0b_89a2_voltage: 12.1
+#   sensor.eco_worthy_0b_89a2_current: -25.0
+#   sensor.eco_worthy_0b_89a2_battery: 20

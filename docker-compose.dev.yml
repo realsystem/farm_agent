@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  homeassistant:
+    image: homeassistant/home-assistant:latest
+    container_name: homeassistant
+    restart: unless-stopped
+    privileged: true
+    environment:
+      TZ: America/Los_Angeles
+    volumes:
+      - homeassistant_config:/config
+      - /run/dbus:/run/dbus:ro
+    ports:
+      - "8123:8123"
+    networks:
+      - farm_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8123/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  farm-agent:
+    build:
+      context: ./farm_agent
+      dockerfile: Dockerfile.dev
+    container_name: farm-agent
+    restart: unless-stopped
+    depends_on:
+      homeassistant:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      HA_API_URL: http://homeassistant:8123/api
+      AGENT_HOST: 0.0.0.0
+      AGENT_PORT: 8080
+      PYTHONUNBUFFERED: 1
+    volumes:
+      - ./farm_agent:/app:cached
+    ports:
+      - "8080:8080"
+    networks:
+      - farm_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  homeassistant_config:
+    driver: local
+
+networks:
+  farm_network:
+    driver: bridge
