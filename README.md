@@ -55,7 +55,13 @@ A Home Assistant custom integration that bridges Assist to Farm Agent:
 - `INSTALLATION.md` — Step-by-step setup guide
 - `INTEGRATION_SETUP.md` — Details about the custom integration
 - `TESTING.md` — Comprehensive test plan with 23 test cases
+- `HA_DASHBOARD_SETUP.md` — Dashboard UI setup and usage guide
 - `README.md` — This file
+
+### 4. Dashboard UI (Optional)
+
+- `ha-dashboard-config.yaml` — Home Assistant helpers and script configuration
+- `ha-dashboard-card.yaml` — Dashboard card YAML for the UI
 
 ## Quick Start
 
@@ -92,6 +98,16 @@ Settings → Voice Assistants → Conversation Agent → Select "Farm Agent"
 Ask on your Pixel phone: "What is the battery voltage?"
 
 **Full details:** See [INSTALLATION.md](INSTALLATION.md)
+
+### 6. (Optional) Add Dashboard UI
+
+For a simple text-based interface to ask arbitrary questions:
+
+1. Copy configuration from `ha-dashboard-config.yaml` into Home Assistant
+2. Create a dashboard card using `ha-dashboard-card.yaml`
+3. Type questions and click "Ask" from the dashboard
+
+**Full details:** See [HA_DASHBOARD_SETUP.md](HA_DASHBOARD_SETUP.md)
 
 ## Key Features
 
