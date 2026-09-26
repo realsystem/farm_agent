@@ -196,25 +196,18 @@ Keep answers short and practical."""
                 tool_choice="auto",
             )
         except Exception as e:
-            # If OpenAI API fails, try to at least discover entities locally
-            error_msg = str(e)
-            if "Connection" in error_msg or "connection" in error_msg:
-                # Try to help by discovering entities at least
-                try:
-                    entities_json = discover_entities()
-                    entities = json.loads(entities_json)
-                    if entities and not entities_json.startswith("Error"):
-                        entity_list = ", ".join([e["entity_id"] for e in entities])
-                        return f"Available sensors: {entity_list}"
-                except:
-                    pass
+            # If OpenAI API fails (network/SSL issues), fall back to direct tool calling
+            error_msg = str(e).lower()
+            if any(x in error_msg for x in ["connection", "ssl", "certificate", "timeout"]):
+                # For queries about sensors/entities, auto-discover
+                if any(word in question.lower() for word in ["sensor", "entity", "available", "what", "which"]):
+                    try:
+                        return discover_entities()
+                    except:
+                        pass
             raise
 
         # Check if we're done (no tool calls)
-        if response.stop_reason == "end_turn":
-            return response.choices[0].message.content
-
-        # Process tool calls
         tool_calls = response.choices[0].message.tool_calls
         if not tool_calls:
             return response.choices[0].message.content

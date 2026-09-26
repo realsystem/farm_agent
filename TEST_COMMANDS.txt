@@ -1,0 +1,135 @@
+════════════════════════════════════════════════════════════════════════════════
+                          FARM AGENT - TEST COMMANDS
+════════════════════════════════════════════════════════════════════════════════
+
+QUICK START
+────────────────────────────────────────────────────────────────────────────────
+cd /Users/segorov/Projects/AI/simple-agent/addons/farm-agent
+./QUICK_TEST.sh                    # Run automated test suite
+
+
+BASIC TESTS (Always Work)
+────────────────────────────────────────────────────────────────────────────────
+curl http://localhost:8080/health
+  → {"status": "ok"}
+
+curl 'http://localhost:8080/ask?q=What%20sensors%20are%20available?'
+  → Returns list of available sensors
+
+
+TESTS REQUIRING OPENAI ACCESS (Full Function Calling)
+────────────────────────────────────────────────────────────────────────────────
+
+BEFORE TESTING: Verify OpenAI access
+  docker exec farm-agent python3 << 'EOF'
+  from openai import OpenAI
+  client = OpenAI()
+  response = client.chat.completions.create(
+      model="gpt-4o-mini",
+      messages=[{"role": "user", "content": "test"}],
+      max_tokens=5
+  )
+  print("✅ OpenAI accessible")
+  EOF
+
+Test 1: What sensors are available?
+  curl 'http://localhost:8080/ask?q=What%20battery%20sensors%20are%20available?'
+
+Test 2: What is the battery voltage?
+  curl 'http://localhost:8080/ask?q=What%20is%20the%20current%20battery%20voltage?'
+
+Test 3: Is the battery charging or discharging?
+  curl 'http://localhost:8080/ask?q=Is%20the%20battery%20charging%20or%20discharging?'
+
+Test 4: How is the battery doing?
+  curl 'http://localhost:8080/ask?q=How%20is%20the%20battery%20doing?'
+
+Test 5: What is the temperature?
+  curl 'http://localhost:8080/ask?q=What%20is%20the%20battery%20temperature?'
+
+Test 6: POST request
+  curl -X POST http://localhost:8080/ask \
+    -H "Content-Type: application/json" \
+    -d '{"question":"What is the battery current?"}'
+
+
+DEBUGGING
+────────────────────────────────────────────────────────────────────────────────
+
+View logs (follow mode)
+  docker-compose -f docker-compose.dev.yml logs -f farm-agent
+
+View last 20 lines
+  docker-compose -f docker-compose.dev.yml logs farm-agent --tail 20
+
+Check containers
+  docker-compose -f docker-compose.dev.yml ps
+
+Restart agent
+  docker-compose -f docker-compose.dev.yml restart farm-agent
+
+Check Home Assistant entities
+  HA_TOKEN=$(grep HA_TOKEN= .env | cut -d= -f2)
+  curl -s 'http://localhost:8123/api/states' \
+    -H "Authorization: Bearer $HA_TOKEN" | python3 -m json.tool
+
+Test OpenAI connectivity
+  docker exec farm-agent python3 -c \
+    "import socket; s=socket.socket(); print('✓ OK' if s.connect_ex(('api.openai.com', 443))==0 else '✗ BLOCKED')"
+
+View Home Assistant logs
+  docker-compose -f docker-compose.dev.yml logs homeassistant --tail 20
+
+
+ENVIRONMENT CHECKS
+────────────────────────────────────────────────────────────────────────────────
+
+Check if both services are healthy
+  docker-compose -f docker-compose.dev.yml ps | grep -E "healthy|unhealthy"
+
+Check if OpenAI key is set
+  grep "^OPENAI_API_KEY=" .env
+
+Check if HA token is set
+  grep "^HA_TOKEN=" .env
+
+Verify agents library is NOT imported
+  grep "from agents" farm_agent/agent.py
+
+Verify openai library IS imported
+  grep "from openai" farm_agent/agent.py
+
+
+EXPECTED RESPONSES
+────────────────────────────────────────────────────────────────────────────────
+
+With OpenAI access (Intelligent):
+  Q: "What is the battery voltage?"
+  A: "The current battery voltage is 13.28 V."
+
+Without OpenAI access (Fallback):
+  Q: "What sensors are available?"
+  A: "[{\"entity_id\": \"sensor.eco_worthy_0b_89a2_voltage\", ...}]"
+
+
+FULL TEST SEQUENCE
+────────────────────────────────────────────────────────────────────────────────
+1. ./QUICK_TEST.sh
+2. curl http://localhost:8080/health
+3. curl 'http://localhost:8080/ask?q=What%20sensors%20are%20available?'
+4. docker-compose -f docker-compose.dev.yml logs farm-agent --tail 5
+
+If all pass → Local development environment is working ✅
+
+
+DEPLOYMENT TO RASPBERRY PI
+────────────────────────────────────────────────────────────────────────────────
+The same code will work in production with OpenAI access:
+
+Environment variables change:
+  DEVELOPMENT: HA_API_URL=http://homeassistant:8123/api + HA_TOKEN
+  PRODUCTION:  HA_API_URL=http://supervisor/core/api + SUPERVISOR_TOKEN
+
+Code is identical - no changes needed!
+
+════════════════════════════════════════════════════════════════════════════════
